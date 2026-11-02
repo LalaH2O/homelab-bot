@@ -3,6 +3,11 @@ from rich import print
 from dotenv import load_dotenv
 from os import getenv
 import requests
+from embeds import proxmox_embeds
+import json
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 load_dotenv()
 
@@ -52,6 +57,18 @@ class Proxmox:
 
 
 pm = Proxmox()
+# print (pm.request("/api2/json/nodes").json())
+# response = pm.request("/api2/json/version")
+# print(response.json())
 
-response = pm.request("/api2/json/version")
-print(response.json())
+def command(command):
+    if command.strip() in ["", "help"]:
+        return (proxmox_embeds.helptext(), 1)
+    
+    if command.strip() == "version":
+        return (proxmox_embeds.version(pm.request("/api2/json/version").json()['data']['version']), 1)
+    
+    if command.strip() == "nodes":
+        return (proxmox_embeds.nodes(pm.request("/api2/json/nodes").json()), 1)
+    
+    return (proxmox_embeds.bad_command(), 1)
