@@ -22,6 +22,9 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    
+    print(message)
+    
     if message.author == client.user:
         return
     
@@ -39,4 +42,4 @@ async def on_message(message):
     elif message.content == "!help":
         await message.channel.send(embed = embeds.helptext())
 
-client.run(DISCORD_TOKEN)
+if __name__ == '__main__': client.run(DISCORD_TOKEN)
