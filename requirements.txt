@@ -1,0 +1,5 @@
+rich>=10.0.0
+python-dotenv>=1.0.0
+requests>=2.28.0
+discord.py>=2.0.0
+uptime-kuma-api>=1.0.0
