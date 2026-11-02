@@ -12,16 +12,11 @@ PROXMOX_URL1 = getenv("PROXMOX_URL1") or ""
 PROXMOX_URL2 = getenv("PROXMOX_URL2") or ""
 PROXMOX_TOKEN_ID = getenv("PROXMOX_TOKEN_ID") or ""
 
-CF_SECRET = getenv("CF_SECRET") or ""
-CF_ID = getenv("CF_ID") or ""
-
 
 class Proxmox:
     def __init__(self):
         self.headers = {
-            "Authorization": f"PVEAPIToken={PROXMOX_TOKEN_ID}={PROXMOX_TOKEN}",
-            "CF-Access-Client-Id": CF_ID,
-            "CF-Access-Client-Secret": CF_SECRET
+            "Authorization": f"PVEAPIToken={PROXMOX_TOKEN_ID}={PROXMOX_TOKEN}"
         }
 
         self.session = requests.Session()
@@ -56,20 +51,7 @@ class Proxmox:
         raise ConnectionError("All Proxmox servers are unavailable")
 
 
-#pm = Proxmox()
-#
-#response = pm.request("/api2/json/version")
-#print(response.json())
+pm = Proxmox()
 
-
-response = requests.get(
-    "https://clusterfuck.lassehelbling.ch/api2/json/version",
-    headers={
-        "CF-Access-Client-Id": CF_ID,
-        "CF-Access-Client-Secret": CF_SECRET
-    },
-    timeout=10
-)
-
-print(response.status_code)
-print(response.text)
+response = pm.request("/api2/json/version")
+print(response.json())
