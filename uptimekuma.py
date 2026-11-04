@@ -88,7 +88,7 @@ async def get_uptime():
     try:
         uptimes = api.uptime() #type: ignore
         embed = uptimekuma_embeds.uptime(monitors, uptimes)
-        return embed
+        return embed, 1
     except Exception as e:
         # Check if we know we don't have access to the server
         # This could be determined by specific error types or messages
@@ -98,7 +98,7 @@ async def get_uptime():
                 try:
                     uptimes = api.uptime() #type: ignore
                     embed = uptimekuma_embeds.uptime(monitors, uptimes)
-                    return embed
+                    return embed, 1
                 except Exception as e2:
                     # Reauthentication succeeded but uptime still failed
                     return uptimekuma_embeds.bad_embed(), 1

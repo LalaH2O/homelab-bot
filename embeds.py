@@ -20,7 +20,9 @@ def helptext():
     
     return embed
 
-
+def command_unavailable():
+    embed = discord.Embed(title = "Command unavailable", colour=0x8F1F00, description= "please try again later").set_author(name = "Homelab bot")
+    return embed
 
 class _uptimekuma_embeds():
     def __init__(self):

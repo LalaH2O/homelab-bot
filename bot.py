@@ -11,6 +11,7 @@ try:
 except Exception as e:
     print(f"[red]Uptimekuma unavailable \n {e}")
     uptimekuma_available = 0
+    
 try:
     from proxmox import command as pmcommand
     proxmox_available = 1
@@ -40,21 +41,25 @@ async def on_message(message):
         return
     
     if message.content == "!uptime":
-        ukret = await uptimekuma.get_uptime()
-        if ukret[1] == 1:
-             if uptimekuma_available == 1: await message.channel.send(embed=ukret[0])
+        ukret = await uptimekuma.get_uptime() #type: ignore
+        if ukret[1] == 1: #type: ignore
+            if uptimekuma_available == 1:
+                await message.channel.send(embed=ukret[0]) #type: ignore
+            else: 
+                message.channel.send(embed = embeds.command_unavailable())
         else:
-            await message.channel.send(ukret[0])
-        else: await message.channel.send(embed = "")
+            await message.channel.send(ukret[0]) #type: ignore
        
     elif message.content.startswith("!proxmox") or message.content.startswith("!pm"):
-        pmret = pmcommand(message.content.removeprefix("!proxmox").removeprefix("!pm"))
-        if pmret[1] == 1:
-            await message.channel.send(embed = pmret[0])
-            
+        if proxmox_available == 1:
+            pmret = pmcommand(message.content.removeprefix("!proxmox").removeprefix("!pm")) #type: ignore
+            if pmret[1] == 1:
+                await message.channel.send(embed = pmret[0])
+
+            else:
+                await message.channel.send(pmret[0])
         else:
-            await message.channel.send(pmret[0])
-            
+            await message.channel.send(embed = embeds.command_unavailable())
     elif message.content == "!help":
         await message.channel.send(embed = embeds.helptext())
 
