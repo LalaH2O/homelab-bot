@@ -61,6 +61,19 @@ pm = Proxmox()
 # response = pm.request("/api2/json/version")
 # print(response.json())
 
+def vmcommand(command):
+    if command in ['list', '']:
+        nodes = json.loads(pm.request("/api2/json/nodes").content)
+    
+        vms = []
+        
+        for node in nodes:
+            vms.extend(json.loads(pm.request(f"/api2/json/nodes/{node['id']}/qemu").content)['data'])
+            
+        return proxmox_embeds.vms(vms), 1  
+    
+    return proxmox_embeds.bad_command(), 1 
+            
 def command(command):
     if command.strip() in ["", "help"]:
         return (proxmox_embeds.helptext(), 1)
@@ -70,5 +83,8 @@ def command(command):
     
     if command.strip() == "nodes":
         return (proxmox_embeds.nodes(pm.request("/api2/json/nodes").json()), 1)
+    
+    if command.strip() == "vm":
+        return vmcommand(command.strip().removeprefix('vm').strip())
     
     return (proxmox_embeds.bad_command(), 1)

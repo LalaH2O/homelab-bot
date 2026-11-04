@@ -105,6 +105,20 @@ class _proxmox_embeds():
                             inline=False)
             
         return embed
+    
+    def vms(self, data):
+        embed = discord.Embed(title="Proxmox vms")
+
+        embed.set_author(name="Homelab bot")
+        for vm in data:
+            if vm['status'] == "running": emoji = "🟢"
+            else: emoji = "🔴"
+            
+            embed.add_field(name=f"{emoji} | {vm['name']} ({vm['vmid']})",
+                            value = "",
+                            inline=True)
+            
+        return embed
         
 proxmox_embeds = _proxmox_embeds()
 uptimekuma_embeds = _uptimekuma_embeds()
