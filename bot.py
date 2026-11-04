@@ -3,10 +3,21 @@ import requests
 from rich import print
 from dotenv import load_dotenv
 from os import getenv
-import uptimekuma
-from proxmox import command as pmcommand
 import embeds
 
+try:
+    import uptimekuma
+    uptimekuma_available = 1
+except Exception as e:
+    print(f"[red]Uptimekuma unavailable \n {e}")
+    uptimekuma_available = 0
+try:
+    from proxmox import command as pmcommand
+    proxmox_available = 1
+except Exception as e:
+    print(f"[red]Proxmox unavailable \n {e}")
+    proxmox_available = 0
+    
 load_dotenv()
 
 DISCORD_TOKEN = getenv("DISCORD_TOKEN") or ""
@@ -29,7 +40,12 @@ async def on_message(message):
         return
     
     if message.content == "!uptime":
-       await message.channel.send(embed=await uptimekuma.get_uptime())
+        ukret = await uptimekuma.get_uptime()
+        if ukret[1] == 1:
+             if uptimekuma_available == 1: await message.channel.send(embed=ukret[0])
+        else:
+            await message.channel.send(ukret[0])
+        else: await message.channel.send(embed = "")
        
     elif message.content.startswith("!proxmox") or message.content.startswith("!pm"):
         pmret = pmcommand(message.content.removeprefix("!proxmox").removeprefix("!pm"))

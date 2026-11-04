@@ -53,7 +53,7 @@ class Proxmox:
             except requests.RequestException as e:
                 print(f"[red]Server {server} failed: {e}[/red]")
 
-        raise ConnectionError("All Proxmox servers are unavailable")
+        return False
 
 
 pm = Proxmox()
@@ -63,12 +63,20 @@ pm = Proxmox()
 
 def vmcommand(command):
     if command in ['list', '']:
-        nodes = json.loads(pm.request("/api2/json/nodes").content)
+        req = pm.request("/api2/json/nodes")
+        if req == False:
+            return proxmox_embeds.bad_connection() , 1
+        
+        nodes = json.loads(req.content)
     
         vms = []
         
         for node in nodes:
-            vms.extend(json.loads(pm.request(f"/api2/json/nodes/{node['id']}/qemu").content)['data'])
+            req = pm.request(f"/api2/json/nodes/{node['id']}/qemu")
+            if req == False:
+                return proxmox_embeds.bad_connection(), 1
+            
+            vms.extend(json.loads(req.content)['data'])
             
         return proxmox_embeds.vms(vms), 1  
     
@@ -79,10 +87,18 @@ def command(command):
         return (proxmox_embeds.helptext(), 1)
     
     if command.strip() == "version":
-        return (proxmox_embeds.version(pm.request("/api2/json/version").json()['data']['version']), 1)
+        req = pm.request("/api2/json/version")
+        if req == False:
+            return proxmox_embeds.bad_connection(), 1
+        
+        return (proxmox_embeds.version(req.json()['data']['version']), 1)
     
     if command.strip() == "nodes":
-        return (proxmox_embeds.nodes(pm.request("/api2/json/nodes").json()), 1)
+        req = pm.request("/api2/json/nodes")
+        if req == False:
+            return proxmox_embeds.bad_connection(), 1
+        
+        return (proxmox_embeds.nodes(req.json()), 1)
     
     if command.strip() == "vm":
         return vmcommand(command.strip().removeprefix('vm').strip())

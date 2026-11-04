@@ -20,6 +20,8 @@ def helptext():
     
     return embed
 
+
+
 class _uptimekuma_embeds():
     def __init__(self):
         pass
@@ -50,6 +52,14 @@ class _uptimekuma_embeds():
         embed.set_footer(text="Uptime Kuma • Last 365 days")
         
         return embed
+    
+    def bad_connection(self):
+        embed = discord.Embed(title = "Server unavailable", colour=0x8F1F00, description= "please try again later").set_author(name = "Homelab bot")
+        return embed
+    
+    def bad_embed(self):
+        # Alias for bad_connection to match the requested API
+        return self.bad_connection()
 
 class _proxmox_embeds():
     def __init__(self): pass
@@ -119,6 +129,10 @@ class _proxmox_embeds():
                             inline=True)
             
         return embed
-        
+    
+    def bad_connection(self):
+        embed = discord.Embed(title = "Server unavailable", colour=0x8F1F00, description= "please try again later").set_author(name = "Homelab bot")
+        return embed
+    
 proxmox_embeds = _proxmox_embeds()
 uptimekuma_embeds = _uptimekuma_embeds()
