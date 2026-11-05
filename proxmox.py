@@ -207,7 +207,10 @@ def command(command):
     
     if command.strip().startswith("vm"):
         try:
-            return vmcommand(command.strip().removeprefix('vm').strip().split()[0], ' '.join(command.strip().removeprefix('vm').strip().split()[1:]).strip())
+            parts = command.strip().removeprefix('vm').strip().split()
+            if not parts:
+                return proxmox_embeds.vm_helptext(), 1
+            return vmcommand(parts[0], ' '.join(parts[1:]).strip())
         except Exception as e:
             print(e)
             return "There was a problem executing your command", 0
