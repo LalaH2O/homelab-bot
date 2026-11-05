@@ -8,6 +8,7 @@ import embeds
 try:
     import uptimekuma
     uptimekuma_available = 1
+    
 except Exception as e:
     print(f"[red]Uptimekuma unavailable \n {e}")
     uptimekuma_available = 0
@@ -15,6 +16,7 @@ except Exception as e:
 try:
     from proxmox import command as pmcommand
     proxmox_available = 1
+    
 except Exception as e:
     print(f"[red]Proxmox unavailable \n {e}")
     proxmox_available = 0
@@ -60,6 +62,7 @@ async def on_message(message):
                 await message.channel.send(pmret[0])
         else:
             await message.channel.send(embed = embeds.command_unavailable())
+            
     elif message.content == "!help":
         await message.channel.send(embed = embeds.helptext())
 

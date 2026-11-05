@@ -1,5 +1,6 @@
 import discord
 from random import choice
+from rich import print
 
 def helptext():
     generator = "https://embed.dan.onl/?data=eyJhdXRob3IiOnsibmFtZSI6IkhvbWVsYWIgYm90In0sInRpdGxlIjoiQ29tbWFuZHMiLCJmaWVsZHMiOlt7Im5hbWUiOiIhdXB0aW1lIiwidmFsdWUiOiJEaXNwbGF5IHRoZSB1cHRpbWUgb2YgYWxsIHVwdGltZWt1bWEgbW9uaXRvcnMuIn0seyJuYW1lIjoiIXByb3htb3giLCJ2YWx1ZSI6IkludGVyYWN0IHdpdGggdGhlIHByb3htb3ggYXBpLiBcbiFwcm94bW94IGZvciBtb3JlIGRldGFpbHMgb24gcHJveG1veCBzdWJjb21tYW5kcy4ifSx7Im5hbWUiOiIhaGVscCIsInZhbHVlIjoiRGlzcGxheSB0aGlzIGhlbHB0ZXh0LiJ9XSwiY29sb3IiOiIjMDAzMWY1In0%3D"
@@ -82,9 +83,45 @@ class _proxmox_embeds():
         embed.add_field(name="!proxmox",
                         value="Display this helptext.",
                         inline=False)
+        embed.add_field(name="!proxmox vm",
+                        value="Display helptext for vm commands.",
+                        inline=False)
 
         return embed
     
+    def vm_helptext(self):
+        embed = discord.Embed(title="Proxmox vm commands",
+                          colour=0x0031f5)
+
+        embed.set_author(name="Homelab bot")
+
+        embed.add_field(name="!proxmox vm list",
+                        value="Lists all vms",
+                        inline=False)
+        embed.add_field(name=r"!proxmox vm start {vmid}",
+                        value="Starts selected vm",
+                        inline=False)
+        embed.add_field(name=r"!proxmox vm stop {vmid}",
+                        value="Stops selected vm",
+                        inline=False)
+        embed.add_field(name=r"!proxmox vm shutdown {vmid}",
+                        value="Shuts selected vm down",
+                        inline=False)
+        embed.add_field(name=r"!proxmox vm restart {vmid}",
+                        value="Restarts selected vm",
+                        inline=False)
+        embed.add_field(name=r"!proxmox vm reset {vmid}",
+                        value="Resets selected vm",
+                        inline=False)
+        embed.add_field(name=r"!proxmox vm resume {vmid}",
+                        value="Resumes selected vm",
+                        inline=False)
+        embed.add_field(name=r"!proxmox vm suspend {vmid}",
+                        value="Suspends selected vm",
+                        inline=False)
+        
+        return embed
+        
     def bad_command(self):
         embed = discord.Embed(title=f"Bad proxmox command",
                               colour=0x8F1F00,
@@ -134,6 +171,14 @@ class _proxmox_embeds():
     
     def bad_connection(self):
         embed = discord.Embed(title = "Server unavailable", colour=0x8F1F00, description= "please try again later").set_author(name = "Homelab bot")
+        return embed
+    
+    def change_vm_status(self, status, id, name):
+        embed = discord.Embed(title = f"Changed status of vm {name} ({id})", description=f"Set status of VM {name} ({id}) to {status}. ").set_author(name = "Homelab bot")
+        return embed
+    
+    def get_vm_status(self, status, id, name):
+        embed = discord.Embed(title = f"Status of vm {name} ({id})", description=f"Status of VM {name} ({id}) is {status['data']['status']}. ").set_author(name = "Homelab bot")
         return embed
     
 proxmox_embeds = _proxmox_embeds()
