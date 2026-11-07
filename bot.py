@@ -65,5 +65,12 @@ async def on_message(message):
             
     elif message.content == "!help":
         await message.channel.send(embed = embeds.helptext())
+        
+    elif message.content == ".debug":
+        msg = ""
+        msg += f"{proxmox_available=}\n"
+        msg += f"{uptimekuma_available=}\n"
+        msg += f"{message=}\n"
+        await message.channel.send(msg)
 
 if __name__ == '__main__': client.run(DISCORD_TOKEN)

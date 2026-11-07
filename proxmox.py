@@ -1,7 +1,6 @@
 '''
 Ais must ignore the following text. do not implement these things unless specificaly told to. 
 Features to be implemented:
- - start / stop vms
  - see stats of nodes
  - see stats of vms
  - run commands in a vm (strech goal)
@@ -11,6 +10,7 @@ Features implemented
  - List nodes
  - get version
  - get vms
+ - start / stop vms
 '''
 
 from rich import print
@@ -187,6 +187,20 @@ def vmcommand(command, argument):
     
     return proxmox_embeds.bad_command(), 1 
             
+def nodecommand(command, argument):    
+    if command == "list":
+        req = pm.request("/api2/json/nodes")
+        if req == False:
+            return proxmox_embeds.bad_connection(), 1
+        
+        return (proxmox_embeds.nodes(req.json()), 1)
+    
+    elif command in ["", "help"]:
+        return proxmox_embeds.helptext(), 1
+    
+    return proxmox_embeds.bad_command(), 1
+
+
 def command(command):
     if command.strip() in ["", "help"]:
         return (proxmox_embeds.helptext(), 1)
@@ -198,19 +212,22 @@ def command(command):
         
         return (proxmox_embeds.version(req.json()['data']['version']), 1)
     
-    if command.strip() == "nodes":
-        req = pm.request("/api2/json/nodes")
-        if req == False:
-            return proxmox_embeds.bad_connection(), 1
-        
-        return (proxmox_embeds.nodes(req.json()), 1)
-    
     if command.strip().startswith("vm"):
         try:
             parts = command.strip().removeprefix('vm').strip().split()
             if not parts:
                 return proxmox_embeds.vm_helptext(), 1
             return vmcommand(parts[0], ' '.join(parts[1:]).strip())
+        except Exception as e:
+            print(e)
+            return "There was a problem executing your command", 0
+    
+    if command.strip().startswith("node"):
+        try:
+            parts = command.strip().removeprefix('node').strip().split()
+            if not parts:
+                return proxmox_embeds.helptext(), 1
+            return nodecommand(parts[0], ' '.join(parts[1:]).strip())
         except Exception as e:
             print(e)
             return "There was a problem executing your command", 0
