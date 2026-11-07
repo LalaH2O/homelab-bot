@@ -9,13 +9,13 @@ def helptext():
 
     embed.set_author(name="Homelab bot")
 
-    embed.add_field(name="!uptime",
+    embed.add_field(name="/uptime",
                     value="Display the uptime of all uptimekuma monitors.",
                     inline=False)
-    embed.add_field(name="!proxmox",
+    embed.add_field(name="/proxmox",
                     value="Interact with the proxmox api. \n!proxmox for more details on proxmox subcommands.",
                     inline=False)
-    embed.add_field(name="!help",
+    embed.add_field(name="/help",
                     value="Display this helptext.",
                     inline=False)
     
@@ -59,10 +59,6 @@ class _uptimekuma_embeds():
     def bad_connection(self):
         embed = discord.Embed(title = "Server unavailable", colour=0x8F1F00, description= "please try again later").set_author(name = "Homelab bot")
         return embed
-    
-    def bad_embed(self):
-        # Alias for bad_connection to match the requested API
-        return self.bad_connection()
 
 class _proxmox_embeds():
     def __init__(self): pass
@@ -74,16 +70,16 @@ class _proxmox_embeds():
 
         embed.set_author(name="Homelab bot")
 
-        embed.add_field(name="!proxmox version",
+        embed.add_field(name="/proxmox version",
                         value="Display the proxmox version",
                         inline=False)
-        embed.add_field(name="!proxmox nodes",
+        embed.add_field(name="/proxmox nodes",
                         value="Display all proxmox nodes.",
                         inline=False)
-        embed.add_field(name="!proxmox",
+        embed.add_field(name="/proxmox",
                         value="Display this helptext.",
                         inline=False)
-        embed.add_field(name="!proxmox vm",
+        embed.add_field(name="/proxmox vm",
                         value="Display helptext for vm commands.",
                         inline=False)
 
@@ -95,28 +91,28 @@ class _proxmox_embeds():
 
         embed.set_author(name="Homelab bot")
 
-        embed.add_field(name="!proxmox vm list",
+        embed.add_field(name="/proxmox vm list",
                         value="Lists all vms",
                         inline=False)
-        embed.add_field(name=r"!proxmox vm start {vmid}",
+        embed.add_field(name=r"/proxmox vm start {vmid}",
                         value="Starts selected vm",
                         inline=False)
-        embed.add_field(name=r"!proxmox vm stop {vmid}",
+        embed.add_field(name=r"/proxmox vm stop {vmid}",
                         value="Stops selected vm",
                         inline=False)
-        embed.add_field(name=r"!proxmox vm shutdown {vmid}",
+        embed.add_field(name=r"/proxmox vm shutdown {vmid}",
                         value="Shuts selected vm down",
                         inline=False)
-        embed.add_field(name=r"!proxmox vm restart {vmid}",
+        embed.add_field(name=r"/proxmox vm restart {vmid}",
                         value="Restarts selected vm",
                         inline=False)
-        embed.add_field(name=r"!proxmox vm reset {vmid}",
+        embed.add_field(name=r"/proxmox vm reset {vmid}",
                         value="Resets selected vm",
                         inline=False)
-        embed.add_field(name=r"!proxmox vm resume {vmid}",
+        embed.add_field(name=r"/proxmox vm resume {vmid}",
                         value="Resumes selected vm",
                         inline=False)
-        embed.add_field(name=r"!proxmox vm suspend {vmid}",
+        embed.add_field(name=r"/proxmox vm suspend {vmid}",
                         value="Suspends selected vm",
                         inline=False)
         
@@ -125,7 +121,7 @@ class _proxmox_embeds():
     def bad_command(self):
         embed = discord.Embed(title=f"Bad proxmox command",
                               colour=0x8F1F00,
-                              description="Try !proxmox help for help")
+                              description="Try /proxmox help for help")
         
         embed.set_author(name="Homelab bot")
         

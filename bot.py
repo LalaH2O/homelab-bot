@@ -4,6 +4,9 @@ from rich import print
 from dotenv import load_dotenv
 from os import getenv
 import embeds
+from webhook import print, tdebug, debug
+import rich
+from discord.ext import commands
 
 try:
     import uptimekuma
@@ -28,20 +31,56 @@ DISCORD_TOKEN = getenv("DISCORD_TOKEN") or ""
 intents = discord.Intents.default()
 intents.message_content = True
 
-client = discord.Client(intents=intents)
+description = '''
+Bot to controll my homelab
+'''
 
-@client.event
+bot = commands.Bot(command_prefix='/', description=description, intents=intents)
+
+@bot.event
 async def on_ready():
-    print(f'[green]We have logged in as {client.user}')
+    # Tell the type checker that User is filled up at this point
+    assert bot.user is not None
 
-@client.event
+    print(f'Logged in as {bot.user} (ID: {bot.user.id})')
+    print('------')
+    await bot.tree.sync(guild=discord.Object(id=1558574978314535094))
+    
+@bot.tree.command(name="uptime")
+async def uptime(interaction: discord.Interaction):
+        ukret = await uptimekuma.get_uptime() #type: ignore
+        if ukret[1] == 1: #type: ignore
+            if uptimekuma_available == 1:
+                await interaction.response.send_message(embed=ukret[0]) #type: ignore
+            else: 
+                await interaction.response.send_message(embed = embeds.command_unavailable())
+        else:
+            await interaction.response.send_message(ukret[0]) #type: ignore
+            
+@bot.tree.command(name="proxmox")
+async def proxmox(interaction: discord.Interaction, argument: str):
+        if proxmox_available == 1:
+            pmret = pmcommand(argument) #type: ignore
+            if pmret[1] == 1:
+                await interaction.response.send_message(embed = pmret[0])
+
+            else:
+                await interaction.response.send_message(pmret[0])
+        else:
+            await interaction.response.send_message(embed = embeds.command_unavailable())
+            
+@bot.tree.command(name="help")
+async def help(interaction: discord.Interaction):
+    await interaction.response.send_message(embed=embeds.helptext())
+
+@bot.event
 async def on_message(message):
     
-    print(message)
+    rich.print(message)
     
-    if message.author == client.user:
+    if message.author == bot.user:
         return
-    
+    '''
     if message.content == "!uptime":
         ukret = await uptimekuma.get_uptime() #type: ignore
         if ukret[1] == 1: #type: ignore
@@ -65,12 +104,17 @@ async def on_message(message):
             
     elif message.content == "!help":
         await message.channel.send(embed = embeds.helptext())
-        
-    elif message.content == ".debug":
+    '''
+    if message.content == ".debug":
         msg = ""
         msg += f"{proxmox_available=}\n"
         msg += f"{uptimekuma_available=}\n"
         msg += f"{message=}\n"
+        msg += f"{debug=}\n"
         await message.channel.send(msg)
+        
+    elif message.content == ".debug toggle":
+        tdebug()
+        await message.channel.send(f"Toggled debug to {debug}")
 
-if __name__ == '__main__': client.run(DISCORD_TOKEN)
+if __name__ == '__main__': bot.run(DISCORD_TOKEN)

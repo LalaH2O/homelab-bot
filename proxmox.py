@@ -13,13 +13,13 @@ Features implemented
  - start / stop vms
 '''
 
-from rich import print
 from dotenv import load_dotenv
 from os import getenv
 import requests
 from embeds import proxmox_embeds
 import json
 import urllib3
+from webhook import print
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -188,7 +188,7 @@ def vmcommand(command, argument):
     return proxmox_embeds.bad_command(), 1 
             
 def nodecommand(command, argument):    
-    if command == "list":
+    if command == "list" or command == "s":
         req = pm.request("/api2/json/nodes")
         if req == False:
             return proxmox_embeds.bad_connection(), 1

@@ -1,9 +1,9 @@
-from rich import print
 from uptime_kuma_api import UptimeKumaApi # type: ignore
 from dotenv import load_dotenv
 from os import getenv
 import discord
 from embeds import uptimekuma_embeds
+from webhook import print
 
 load_dotenv()
 
@@ -101,10 +101,10 @@ async def get_uptime():
                     return embed, 1
                 except Exception as e2:
                     # Reauthentication succeeded but uptime still failed
-                    return uptimekuma_embeds.bad_embed(), 1
+                    return uptimekuma_embeds.bad_connection(), 1
             else:
                 # We know we don't have access, don't retry
-                return uptimekuma_embeds.bad_embed(), 1
+                return uptimekuma_embeds.bad_connection(), 1
         else:
             # Any other error, return bad connection
-            return uptimekuma_embeds.bad_embed(), 1
+            return uptimekuma_embeds.bad_connection(), 1
