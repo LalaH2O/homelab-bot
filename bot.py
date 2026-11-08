@@ -56,6 +56,13 @@ async def uptime(interaction: discord.Interaction):
                 await interaction.response.send_message(embed = embeds.command_unavailable())
         else:
             await interaction.response.send_message(ukret[0]) #type: ignore
+    
+@bot.tree.command(name="create_monitor")
+async def create_monitor(interaction: discord.Interaction, name: str, url: str):
+    if uptimekuma_available == 1:
+        await interaction.response.send_message(embed = uptimekuma.create_monitor(name, url)) #type: ignore
+    else:
+        await interaction.response.send_message(embed = embeds.command_unavailable())
             
 @bot.tree.command(name="proxmox")
 async def proxmox(interaction: discord.Interaction, argument: str):
@@ -80,7 +87,7 @@ async def on_message(message):
     
     if message.author == bot.user:
         return
-    '''
+
     if message.content == "!uptime":
         ukret = await uptimekuma.get_uptime() #type: ignore
         if ukret[1] == 1: #type: ignore
@@ -104,7 +111,7 @@ async def on_message(message):
             
     elif message.content == "!help":
         await message.channel.send(embed = embeds.helptext())
-    '''
+    
     if message.content == ".debug":
         msg = ""
         msg += f"{proxmox_available=}\n"

@@ -1,4 +1,5 @@
 from uptime_kuma_api import UptimeKumaApi # type: ignore
+import uptime_kuma_api
 from dotenv import load_dotenv
 from os import getenv
 import discord
@@ -108,3 +109,6 @@ async def get_uptime():
         else:
             # Any other error, return bad connection
             return uptimekuma_embeds.bad_connection(), 1
+        
+def create_monitor(name, url):
+    api.add_monitor(type=uptime_kuma_api.MonitorType.HTTP, name = name, url = url)
