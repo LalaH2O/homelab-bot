@@ -111,4 +111,4 @@ async def get_uptime():
             return uptimekuma_embeds.bad_connection(), 1
         
 def create_monitor(name, url):
-    api.add_monitor(type=uptime_kuma_api.MonitorType.HTTP, name = name, url = url)
+    api.add_monitor(type=uptime_kuma_api.MonitorType.HTTP, name = name, url = url) #type: ignore

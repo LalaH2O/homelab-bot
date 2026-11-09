@@ -8,21 +8,12 @@ from webhook import print, tdebug, debug
 import rich
 from discord.ext import commands
 
-try:
-    import uptimekuma
-    uptimekuma_available = 1
-    
-except Exception as e:
-    print(f"[red]Uptimekuma unavailable \n {e}")
-    uptimekuma_available = 0
-    
-try:
-    from proxmox import command as pmcommand
-    proxmox_available = 1
-    
-except Exception as e:
-    print(f"[red]Proxmox unavailable \n {e}")
-    proxmox_available = 0
+from commands import (upimec, 
+                      create_monitorc, 
+                      proxmoxc, 
+                      helpc, 
+                      uptimekuma_available, 
+                      proxmox_available)
     
 load_dotenv()
 
@@ -36,81 +27,37 @@ Bot to controll my homelab
 '''
 
 bot = commands.Bot(command_prefix='/', description=description, intents=intents)
-
+    
 @bot.event
 async def on_ready():
     # Tell the type checker that User is filled up at this point
     assert bot.user is not None
 
-    print(f'Logged in as {bot.user} (ID: {bot.user.id})')
-    print('------')
-    await bot.tree.sync(guild=discord.Object(id=1558574978314535094))
+    print(f'[green]Logged in as {bot.user} (ID: {bot.user.id})')
+    await bot.tree.sync()
     
 @bot.tree.command(name="uptime")
-async def uptime(interaction: discord.Interaction):
-        ukret = await uptimekuma.get_uptime() #type: ignore
-        if ukret[1] == 1: #type: ignore
-            if uptimekuma_available == 1:
-                await interaction.response.send_message(embed=ukret[0]) #type: ignore
-            else: 
-                await interaction.response.send_message(embed = embeds.command_unavailable())
-        else:
-            await interaction.response.send_message(ukret[0]) #type: ignore
+async def uptime(interaction: discord.Interaction): await upimec(interaction.response.send_message)
     
 @bot.tree.command(name="create_monitor")
-async def create_monitor(interaction: discord.Interaction, name: str, url: str):
-    if uptimekuma_available == 1:
-        await interaction.response.send_message(embed = uptimekuma.create_monitor(name, url)) #type: ignore
-    else:
-        await interaction.response.send_message(embed = embeds.command_unavailable())
+async def create_monitor(interaction: discord.Interaction, name: str, url: str): await create_monitorc(interaction.response.send_message, name, url)
             
 @bot.tree.command(name="proxmox")
-async def proxmox(interaction: discord.Interaction, argument: str):
-        if proxmox_available == 1:
-            pmret = pmcommand(argument) #type: ignore
-            if pmret[1] == 1:
-                await interaction.response.send_message(embed = pmret[0])
-
-            else:
-                await interaction.response.send_message(pmret[0])
-        else:
-            await interaction.response.send_message(embed = embeds.command_unavailable())
+async def proxmox(interaction: discord.Interaction, argument: str): await proxmoxc(interaction.response.send_message, argument)
             
 @bot.tree.command(name="help")
-async def help(interaction: discord.Interaction):
-    await interaction.response.send_message(embed=embeds.helptext())
+async def help(interaction: discord.Interaction): await helpc(interaction.response.send_message)
 
 @bot.event
 async def on_message(message):
     
     rich.print(message)
     
-    if message.author == bot.user:
-        return
+    if message.author == bot.user: return
 
-    if message.content == "!uptime":
-        ukret = await uptimekuma.get_uptime() #type: ignore
-        if ukret[1] == 1: #type: ignore
-            if uptimekuma_available == 1:
-                await message.channel.send(embed=ukret[0]) #type: ignore
-            else: 
-                message.channel.send(embed = embeds.command_unavailable())
-        else:
-            await message.channel.send(ukret[0]) #type: ignore
-       
-    elif message.content.startswith("!proxmox") or message.content.startswith("!pm"):
-        if proxmox_available == 1:
-            pmret = pmcommand(message.content.removeprefix("!proxmox").removeprefix("!pm")) #type: ignore
-            if pmret[1] == 1:
-                await message.channel.send(embed = pmret[0])
-
-            else:
-                await message.channel.send(pmret[0])
-        else:
-            await message.channel.send(embed = embeds.command_unavailable())
-            
-    elif message.content == "!help":
-        await message.channel.send(embed = embeds.helptext())
+    if message.content == "!uptime": await upimec(message.channel.send)
+    elif message.content.startswith("!proxmox") or message.content.startswith("!pm"): await proxmoxc(message.channel.send, message.content.removeprefix("!proxmox").removeprefix("!pm"))
+    elif message.content == "!help": await helpc(message.channel.send)    
     
     if message.content == ".debug":
         msg = ""
