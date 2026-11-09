@@ -91,115 +91,80 @@ class Proxmox:
 
 
 pm = Proxmox()
-# print (pm.request("/api2/json/nodes").json())
-# response = pm.request("/api2/json/version")
-# print(response.json())
 
-def vmcommand(command, argument):
-    print(command, " | ", argument)
+####################
+# Sub Sub commands #
+####################
+
+def change_vm_state(vmid, status):
+    req = pm.get_node_of_vm(vmid, send_name=1)
+    if req == False: return "There was a executing your command", 0
+    nodeid, vmname = req
+    print(pm.request(f"/api2/json/nodes/{nodeid}/qemu/{vmid}/status/{status}", method="POST"))
+    return proxmox_embeds.change_vm_status(status, vmid, vmname), 1
+
+def get_vm_state(vmid):
+    req = pm.get_node_of_vm(vmid, send_name=1)
+    if req == False: return "There was a executing your command", 0
+    nodeid, vmname = req
+    req2 = pm.request(f"/api2/json/nodes/{nodeid}/qemu/{vmid}/status/current")
+    if req2 == False: return "There was a executing your command", 0
+    return proxmox_embeds.get_vm_status(json.loads(req2.content) , vmid, vmname), 1
     
-    if command == 'list':
-        req = pm.request("/api2/json/nodes")
+def list_vms():
+    req = pm.request("/api2/json/nodes")
+    if req == False:
+        return proxmox_embeds.bad_connection() , 1
+    
+    nodes = json.loads(req.content)['data']
+
+    vms = []
+    for node in nodes:
+        req = pm.request(f"/api2/json/nodes/{node['node']}/qemu")
+        print("pos a")
         if req == False:
-            return proxmox_embeds.bad_connection() , 1
+            return proxmox_embeds.bad_connection(), 1
         
-        nodes = json.loads(req.content)['data']
-    
-        vms = []
-        for node in nodes:
-            req = pm.request(f"/api2/json/nodes/{node['node']}/qemu")
-            print("pos a")
-            if req == False:
-                return proxmox_embeds.bad_connection(), 1
-            
-            vms.extend(json.loads(req.content)['data'])
-            print("pos b")
-            
-        return proxmox_embeds.vms(vms), 1  
-    
-    elif command == "start":
-        vmid = int(argument)
-        req = pm.get_node_of_vm(vmid, send_name=1)
-        if req == False: return "There was a executing your command", 0
-        nodeid, vmname = req
-        print(pm.request(f"/api2/json/nodes/{nodeid}/qemu/{vmid}/status/start", method="POST"))
-        return proxmox_embeds.change_vm_status("start", vmid, vmname), 1
+        vms.extend(json.loads(req.content)['data'])
+        print("pos b")
         
-    elif command == "stop":
-        vmid = int(argument)
-        req = pm.get_node_of_vm(vmid, send_name=1)
-        if req == False: return "There was a executing your command", 0
-        nodeid, vmname = req
-        pm.request(f"/api2/json/nodes/{nodeid}/qemu/{vmid}/status/stop", method="POST")
-        return proxmox_embeds.change_vm_status("stop", vmid, vmname), 1
-    
-    elif command == "shutdown":
-        vmid = int(argument)
-        req = pm.get_node_of_vm(vmid, send_name=1)
-        if req == False: return "There was a executing your command", 0
-        nodeid, vmname = req
-        pm.request(f"/api2/json/nodes/{nodeid}/qemu/{vmid}/status/shutdown", method="POST")
-        return proxmox_embeds.change_vm_status("shutdown", vmid, vmname), 1
-    
-    elif command == "restart":
-        vmid = int(argument)
-        req = pm.get_node_of_vm(vmid, send_name=1)
-        if req == False: return "There was a executing your command", 0
-        nodeid, vmname = req
-        pm.request(f"/api2/json/nodes/{nodeid}/qemu/{vmid}/status/reboot", method="POST")
-        return proxmox_embeds.change_vm_status("restart", vmid, vmname), 1
-    
-    elif command == "reset":
-        vmid = int(argument)
-        req = pm.get_node_of_vm(vmid, send_name=1)
-        if req == False: return "There was a executing your command", 0
-        nodeid, vmname = req
-        pm.request(f"/api2/json/nodes/{nodeid}/qemu/{vmid}/status/reset", method="POST")
-        return proxmox_embeds.change_vm_status("reset", vmid, vmname), 1
-    
-    elif command == "resume":
-        vmid = int(argument)
-        req = pm.get_node_of_vm(vmid, send_name=1)
-        if req == False: return "There was a executing your command", 0
-        nodeid, vmname = req
-        pm.request(f"/api2/json/nodes/{nodeid}/qemu/{vmid}/status/resume", method="POST")
-        return proxmox_embeds.change_vm_status("resume", vmid, vmname), 1
-    
-    elif command == "suspend":
-        vmid = int(argument)
-        req = pm.get_node_of_vm(vmid, send_name=1)
-        if req == False: return "There was a executing your command", 0
-        nodeid, vmname = req
-        pm.request(f"/api2/json/nodes/{nodeid}/qemu/{vmid}/status/suspend", method="POST")
-        return proxmox_embeds.change_vm_status("suspend", vmid, vmname), 1
-    
-    elif command == "status":
-        vmid = int(argument)
-        req = pm.get_node_of_vm(vmid, send_name=1)
-        if req == False: return "There was a executing your command", 0
-        nodeid, vmname = req
-        req2 = pm.request(f"/api2/json/nodes/{nodeid}/qemu/{vmid}/status/current")
-        if req2 == False: return "There was a executing your command", 0
-        return proxmox_embeds.get_vm_status(json.loads(req2.content) , vmid, vmname), 1
-    
-    elif command in ["", "help"]: return proxmox_embeds.vm_helptext(), 1
-    
-    
-    return proxmox_embeds.bad_command(), 1 
-            
-def nodecommand(command, argument):    
-    if command == "list" or command == "s":
+    return proxmox_embeds.vms(vms), 1  
+
+def list_nodes():
         req = pm.request("/api2/json/nodes")
         if req == False:
             return proxmox_embeds.bad_connection(), 1
         
         return (proxmox_embeds.nodes(req.json()), 1)
     
-    elif command in ["", "help"]:
-        return proxmox_embeds.helptext(), 1
+####################
+#   Sub commands   #
+####################
+    
+def vmcommand(command, argument):
+    print(command, " | ", argument)
+    
+    if command == 'list': return list_vms()
+    
+    elif command in ["start", "stop", "shutdown", "restart", "reset", "resume", "suspend", ]: return change_vm_state(int(argument), command)
+    
+    elif command == "status": return get_vm_state(int(argument))
+    
+    elif command in ["", "help"]: return proxmox_embeds.vm_helptext(), 1
+    
+    return proxmox_embeds.bad_command(), 1 
+            
+def nodecommand(command, argument):    
+    if command == "list" or command == "s": list_nodes()
+    
+    elif command in ["", "help"]:return proxmox_embeds.helptext(), 1
     
     return proxmox_embeds.bad_command(), 1
 
+
+####################
+#     Command      #
+####################
 
 def command(command):
     if command.strip() in ["", "help"]:

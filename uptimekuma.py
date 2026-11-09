@@ -87,7 +87,8 @@ except Exception as e:
 
 async def get_uptime():
     try:
-        uptimes = api.uptime() #type: ignore
+        assert api is not None
+        uptimes = api.uptime()
         embed = uptimekuma_embeds.uptime(monitors, uptimes)
         return embed, 1
     except Exception as e:
@@ -97,7 +98,8 @@ async def get_uptime():
             # Try reauthentication once
             if reauthenticate():
                 try:
-                    uptimes = api.uptime() #type: ignore
+                    assert api is not None
+                    uptimes = api.uptime()
                     embed = uptimekuma_embeds.uptime(monitors, uptimes)
                     return embed, 1
                 except Exception as e2:
@@ -111,4 +113,26 @@ async def get_uptime():
             return uptimekuma_embeds.bad_connection(), 1
         
 def create_monitor(name, url):
-    api.add_monitor(type=uptime_kuma_api.MonitorType.HTTP, name = name, url = url) #type: ignore
+    try:
+        assert api is not None
+        api.add_monitor(
+            type=uptime_kuma_api.MonitorType.HTTP,
+            name=name,
+            url=url,
+        )
+    except Exception as e:
+        if "unauthorized" in str(e).lower() or "forbidden" in str(e).lower():
+            if reauthenticate():
+                try:
+                    assert api is not None
+                    api.add_monitor(
+                        type=uptime_kuma_api.MonitorType.HTTP,
+                        name=name,
+                        url=url,
+                    )
+                except Exception:
+                    return uptimekuma_embeds.bad_connection()
+            else:
+                return uptimekuma_embeds.bad_connection()
+        else:
+            return uptimekuma_embeds.bad_connection()
